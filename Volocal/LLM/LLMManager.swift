@@ -14,15 +14,28 @@ final class LLMManager: ObservableObject {
 
     private var llamaContext: LlamaContext?
     private var generationTask: Task<Void, Never>?
+    private let memoryStore: MemoryStore
 
-    private let systemPrompt = """
+    private static let baseSystemPrompt = """
     You are Volocal, a helpful voice assistant running entirely on-device. \
     Keep responses concise and conversational — typically 1-3 sentences. \
     You're speaking out loud, so avoid markdown, code blocks, or lists. \
     Be friendly, direct, and natural.
     """
 
-    init() {}
+    /// Loads `memory.pbmem` before any prompt is built.
+    init(memoryStore: MemoryStore = MemoryStore()) {
+        self.memoryStore = memoryStore
+    }
+
+    /// Finalized user transcript. Heuristic extraction only; nothing is sent back through the model.
+    func recordUserTurn(_ text: String) {
+        memoryStore.ingest(userUtterance: text)
+    }
+
+    func wipeMemory() {
+        memoryStore.wipe()
+    }
 
     func loadModel(path: String) async throws {
         // Context 8192 and q8_0 K/V are explicit (not llama.cpp defaults).
@@ -40,6 +53,19 @@ final class LLMManager: ObservableObject {
         generationTask?.cancel()
         generationTask = nil
 
+        // ChatML matching Qwen/Qwen3.5-2B's chat_template.jinja.
+        // Past assistant turns are plain text (no empty think blocks).
+        // Memory is already loaded (and any fact from this turn already stored).
+        let systemPrompt = makeSystemPrompt()
+        var fullPrompt = "<|im_start|>system\n\(systemPrompt)<|im_end|>\n"
+        for message in history {
+            let role = message.role == .user ? "user" : "assistant"
+            fullPrompt += "<|im_start|>\(role)\n\(message.text)<|im_end|>\n"
+        }
+        // Official non-thinking generation prompt (enable_thinking=false):
+        // <|im_start|>assistant\n<think>\n\n</think>\n\n
+        fullPrompt += "<|im_start|>assistant\n<think>\n\n</think>\n\n"
+
         return AsyncStream { continuation in
             generationTask = Task {
                 guard let ctx = llamaContext else {
@@ -52,17 +78,6 @@ final class LLMManager: ObservableObject {
                     self.response = ""
                     self.tokensPerSecond = 0
                 }
-
-                // ChatML matching Qwen/Qwen3.5-2B's chat_template.jinja.
-                // Past assistant turns are plain text (no empty think blocks).
-                var fullPrompt = "<|im_start|>system\n\(systemPrompt)<|im_end|>\n"
-                for message in history {
-                    let role = message.role == .user ? "user" : "assistant"
-                    fullPrompt += "<|im_start|>\(role)\n\(message.text)<|im_end|>\n"
-                }
-                // Official non-thinking generation prompt (enable_thinking=false):
-                // <|im_start|>assistant\n<think>\n\n</think>\n\n
-                fullPrompt += "<|im_start|>assistant\n<think>\n\n</think>\n\n"
 
                 let startTime = CFAbsoluteTimeGetCurrent()
                 var tokenCount = 0
@@ -107,6 +122,13 @@ final class LLMManager: ObservableObject {
                 continuation.finish()
             }
         }
+    }
+
+    private func makeSystemPrompt() -> String {
+        MemoryStore.composeSystemPrompt(
+            base: Self.baseSystemPrompt,
+            memoryBlock: memoryStore.promptBlock()
+        )
     }
 
     func stopGeneration() {
