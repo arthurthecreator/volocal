@@ -226,7 +226,7 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					4B0D3CFCE1420835E634B20E = {
-						DevelopmentTeam = FBS8R927D4;
+						DevelopmentTeam = CDMG5NRWRF;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -345,14 +345,14 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = FBS8R927D4;
+				DEVELOPMENT_TEAM = CDMG5NRWRF;
 				INFOPLIST_FILE = Volocal/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fikrikarim.volocal;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pointbarre.volocal;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -366,14 +366,14 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = FBS8R927D4;
+				DEVELOPMENT_TEAM = CDMG5NRWRF;
 				INFOPLIST_FILE = Volocal/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fikrikarim.volocal;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pointbarre.volocal;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
