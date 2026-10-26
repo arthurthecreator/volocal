@@ -1,0 +1,2 @@
+# The GGUF is fetched here by scripts/fetch_llm_gguf.sh and is gitignored.
+# This file keeps the folder reference in git so Xcode can copy it into the app.

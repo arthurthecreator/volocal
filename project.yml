@@ -26,8 +26,20 @@ targets:
     platform: iOS
     sources:
       - path: Volocal
+        excludes:
+          # GGUF is fetched into this folder and copied as a folder reference.
+          - "Resources/LLM/**"
       - path: Volocal/PrivacyInfo.xcprivacy
         buildPhase: resources
+      - path: Volocal/Resources/LLM
+        type: folder
+        buildPhase: resources
+    preBuildScripts:
+      - name: Fetch bundled LLM GGUF
+        basedOnDependencyAnalysis: false
+        script: |
+          set -euo pipefail
+          /bin/bash "${SRCROOT}/scripts/fetch_llm_gguf.sh"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.fikrikarim.volocal

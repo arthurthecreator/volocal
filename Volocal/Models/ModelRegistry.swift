@@ -1,7 +1,9 @@
 import Foundation
 
 /// Central registry of all models used by Volocal.
-/// Defines metadata, download sources, and local paths.
+/// The language model is bundled in the app. Speech models are still
+/// downloaded at runtime (see UnifiedModelManager); this file does not
+/// change how those are obtained.
 enum ModelRegistry {
     /// All model types used in the app
     enum ModelType: String, CaseIterable, Identifiable {
@@ -27,9 +29,11 @@ enum ModelRegistry {
             }
         }
 
+        /// Shown only while a model still needs a download. The LLM has no
+        /// runtime download, so this string is not a download size for it.
         var sizeDescription: String {
             switch self {
-            case .llm: return "~1.26 GB"
+            case .llm: return "Included"
             case .stt: return "~450 MB"
             case .tts: return "~600 MB"
             }
@@ -45,17 +49,19 @@ enum ModelRegistry {
     }
 
     // MARK: - LLM
+    //
+    // Filename must match scripts/llm-gguf.lock. The build phase downloads
+    // that file into Volocal/Resources/LLM and Xcode copies the folder into
+    // the app bundle. There is no runtime Hugging Face download.
 
     static let llmFilename = "Qwen_Qwen3.5-2B-Q4_K_S.gguf"
 
-    static let llmBaseURL = "https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF/resolve/main"
-
-    static var llmDownloadURL: String {
-        "\(llmBaseURL)/\(llmFilename)"
-    }
+    /// Subdirectory inside the app bundle (folder reference Resources/LLM).
+    static let llmBundleSubdirectory = "LLM"
 
     // MARK: - Paths
 
+    /// Documents directory used by the FluidAudio STT download. Not used for the LLM.
     static var modelsDirectory: URL {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let dir = docs.appendingPathComponent("models", isDirectory: true)
@@ -63,12 +69,21 @@ enum ModelRegistry {
         return dir
     }
 
+    /// Path to the bundled GGUF, or nil if the build did not copy it in.
     static var llmModelPath: String? {
-        let path = modelsDirectory.appendingPathComponent(llmFilename).path
-        guard FileManager.default.fileExists(atPath: path),
-              let attrs = try? FileManager.default.attributesOfItem(atPath: path),
+        let name = (llmFilename as NSString).deletingPathExtension
+        let ext = (llmFilename as NSString).pathExtension
+        guard let url = Bundle.main.url(
+            forResource: name,
+            withExtension: ext,
+            subdirectory: llmBundleSubdirectory
+        ) else {
+            return nil
+        }
+        guard FileManager.default.fileExists(atPath: url.path),
+              let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
               let size = attrs[.size] as? UInt64,
               size > 1024 else { return nil }
-        return path
+        return url.path
     }
 }

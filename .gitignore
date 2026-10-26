@@ -1,8 +1,11 @@
-# ML models (too large for git)
+# ML models (too large for git). The LLM GGUF is fetched at build time
+# into Volocal/Resources/LLM by scripts/fetch_llm_gguf.sh (see
+# scripts/llm-gguf.lock). Do not commit it: GitHub rejects blobs over 100 MB.
 /models/
 *.gguf
 *.ort
 *.safetensors
+Volocal/Resources/LLM/.*.partial
 
 # Xcode
 xcuserdata/

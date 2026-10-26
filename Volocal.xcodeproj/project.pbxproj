@@ -26,6 +26,7 @@
 		BDFBC5D0A5A65CCAB16D2A8F /* VoicePipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55BD8F6E3E50B75C4A76AC5C /* VoicePipeline.swift */; };
 		C6C96C7B54DAB0D2F18C5C6D /* TTSManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AAB3650E87AF43D4BB88D6 /* TTSManager.swift */; };
 		E3D279E7690E83F7E5B16D6C /* LLMManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2315FEB668579CE9B2410109 /* LLMManager.swift */; };
+		F0A6C3D85B1E4729C7D4E8A2 /* LLM in Resources */ = {isa = PBXBuildFile; fileRef = A91C3E7B05D24F68A4E1C0B3 /* LLM */; };
 		F2832130B64B921A67A30BE9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2FCD459848B578953ED4DD1B /* Assets.xcassets */; };
 		F387267D1BD267D810C327BA /* SystemMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C792F48B773B8AB7FB665186 /* SystemMetrics.swift */; };
 /* End PBXBuildFile section */
@@ -37,6 +38,7 @@
 		291266CACA92E5C922EAEAD6 /* ModelRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelRegistry.swift; sourceTree = "<group>"; };
 		2B6B189BB680EF1C79BCE706 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		2FCD459848B578953ED4DD1B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A91C3E7B05D24F68A4E1C0B3 /* LLM */ = {isa = PBXFileReference; lastKnownFileType = folder; path = LLM; sourceTree = "<group>"; };
 		55BD8F6E3E50B75C4A76AC5C /* VoicePipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoicePipeline.swift; sourceTree = "<group>"; };
 		5E53B5479E5395EA7890B335 /* Volocal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Volocal.entitlements; sourceTree = "<group>"; };
 		63C4761BFF59B998E24EDE71 /* SentenceBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceBuffer.swift; sourceTree = "<group>"; };
@@ -139,6 +141,14 @@
 			path = TTS;
 			sourceTree = "<group>";
 		};
+		C2D8F5A14E6B4907B3A9D2E6 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A91C3E7B05D24F68A4E1C0B3 /* LLM */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		E0C0F140D85FD98F4070DD2E /* Volocal */ = {
 			isa = PBXGroup;
 			children = (
@@ -146,6 +156,7 @@
 				174A173A569CA4BF546109AC /* Info.plist */,
 				F5A949904EB0EA59094FD6C3 /* PrivacyInfo.xcprivacy */,
 				5E53B5479E5395EA7890B335 /* Volocal.entitlements */,
+				C2D8F5A14E6B4907B3A9D2E6 /* Resources */,
 				4AB318961DE2BFC1B733BAFD /* App */,
 				EA64CF9D2C8D5ED6A95026F0 /* Audio */,
 				2DA99BDC6A4A6C4056009B5D /* Debug */,
@@ -183,6 +194,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FFD2BFF46E63B923B976FB2B /* Build configuration list for PBXNativeTarget "Volocal" */;
 			buildPhases = (
+				B7E4A1C83D9F4A06E2C5B8D1 /* Fetch bundled LLM GGUF */,
 				C18B539337E49654FA5845F8 /* Sources */,
 				D59016C7AC77D75809C93889 /* Resources */,
 				8A56EB5B2E57B22D9FEEB5D9 /* Frameworks */,
@@ -245,10 +257,33 @@
 			files = (
 				F2832130B64B921A67A30BE9 /* Assets.xcassets in Resources */,
 				A680B8A61D166FB7C510DBD0 /* PrivacyInfo.xcprivacy in Resources */,
+				F0A6C3D85B1E4729C7D4E8A2 /* LLM in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B7E4A1C83D9F4A06E2C5B8D1 /* Fetch bundled LLM GGUF */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Fetch bundled LLM GGUF";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n/bin/bash \"${SRCROOT}/scripts/fetch_llm_gguf.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		C18B539337E49654FA5845F8 /* Sources */ = {

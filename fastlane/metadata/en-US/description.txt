@@ -2,7 +2,7 @@ Talk to an AI assistant that runs entirely on your iPhone. No cloud servers, no 
 
 FULLY PRIVATE, FULLY LOCAL
 
-Every word you say stays on your device. Volocal runs three specialized AI models directly on your iPhone's hardware -- nothing is ever sent to the internet. After downloading the models on first launch, you never need a network connection again.
+Every word you say stays on your device. Volocal runs three specialized AI models directly on your iPhone's hardware -- nothing is ever sent to the internet. The language model is included in the app. After the speech models download on first launch, you never need a network connection again.
 
 REAL-TIME VOICE CONVERSATIONS
 
@@ -14,7 +14,7 @@ Change your mind mid-sentence? Just start talking. Volocal supports barge-in wit
 
 NO SUBSCRIPTIONS, NO API KEYS
 
-Volocal is completely free and open source. There are no in-app purchases, no subscriptions, and no hidden costs. Download the models once (~2.3 GB, Wi-Fi recommended) and you're set.
+Volocal is completely free and open source. There are no in-app purchases, no subscriptions, and no hidden costs. The language model is included. Speech models download once (~1.05 GB, Wi-Fi recommended) and you're set.
 
 HOW IT WORKS
 
@@ -33,6 +33,6 @@ REQUIREMENTS
 
 - iOS 17 or later
 - Physical device only (Neural Engine is not available in the Simulator)
-- ~2.3 GB of storage for model downloads on first launch
+- About 1.3 GB installed (language model included), plus ~1.05 GB of speech models on first launch
 
 Volocal is MIT licensed and open source. Built by Fikri Karim.

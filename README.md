@@ -24,7 +24,8 @@ So I decided to replicate the voice AI experience to fully run locally on my iPh
 - Real-time voice conversations
 - Interrupt mid-sentence (barge-in)
 - Hardware echo cancellation so the mic doesn't pick up its own output
-- Downloads all models (~2.3 GB) on first launch with per-model progress
+- Language model is included in the app (fetched when you build; not stored in git)
+- Speech models (~1.05 GB) download on first launch with per-model progress
 
 ## Why this stack
 
@@ -42,23 +43,23 @@ Moving STT to [FluidAudio](https://github.com/FluidInference/FluidAudio) (CoreML
 
 ### Models
 
-| Component | Model                                                                                       | Download | Runtime           |
-| --------- | ------------------------------------------------------------------------------------------- | -------- | ----------------- |
-| STT       | [Parakeet EOU 320](https://huggingface.co/FluidInference/parakeet-realtime-eou-120m-coreml) | ~450 MB  | CoreML (ANE)      |
-| LLM       | [Qwen3.5-2B Q4_K_S](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF)                  | ~1.26 GB | llama.cpp (Metal) |
-| TTS       | [PocketTTS](https://huggingface.co/FluidInference/pocket-tts-coreml)                        | ~600 MB  | CoreML (CPU+GPU)  |
+| Component | Model                                                                                       | How you get it | Runtime           |
+| --------- | ------------------------------------------------------------------------------------------- | -------------- | ----------------- |
+| STT       | [Parakeet EOU 320](https://huggingface.co/FluidInference/parakeet-realtime-eou-120m-coreml) | Runtime download, ~450 MB | CoreML (ANE)      |
+| LLM       | [Qwen3.5-2B Q4_K_S](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF)                  | Bundled at build time, 1,327,696,992 bytes | llama.cpp (Metal), ctx 8192, KV q8_0 |
+| TTS       | [PocketTTS](https://huggingface.co/FluidInference/pocket-tts-coreml)                        | Runtime download, ~600 MB | CoreML (CPU+GPU)  |
 
 Why these specifically:
 
 - **Parakeet EOU** over Moonshine/Whisper — lower WER (4.87% vs 6.65% Moonshine Medium), half the parameters, and end-of-utterance detection is built into the model so you don't need a separate VAD.
-- **Qwen3.5-2B** over 0.8B — MMLU-Pro nearly doubles (29.7 → 55.3). Slower (~32 vs ~70 tok/s) but the quality difference is obvious in conversation. Q4_K_S keeps it at 1.26 GB.
+- **Qwen3.5-2B** over 0.8B — MMLU-Pro nearly doubles (29.7 → 55.3). Slower (~32 vs ~70 tok/s) but the quality difference is obvious in conversation. Q4_K_S is 1,327,696,992 bytes. Context is fixed at 8192 with K and V quantized to q8_0.
 - **PocketTTS** — best quality we found at this size (100M params). ~80ms to first audio, supports voice cloning from a 5-second clip.
 
 ### Audio
 
 One shared `AVAudioEngine` for both STT input and TTS output, with Voice Processing AEC enabled on both nodes. This is what lets barge-in work — the mic stays open during playback and the hardware cancels the echo, so there's no need to mute the mic while speaking.
 
-Runtime memory: ~1.2 GB total (iPhone 15 budget is ~3 GB).
+Runtime memory was about 1.2 GB total at context 2048 (iPhone 15 budget is ~3 GB). Context is now 8192 with a q8_0 K/V cache. For this model that cache is on the order of a few tens of MB and has not been remeasured on a device.
 
 ## Getting started
 
@@ -71,7 +72,30 @@ xcodegen generate
 open Volocal.xcodeproj
 ```
 
-Build and run, then tap **Download All Models** on first launch (~2.3 GB, Wi-Fi recommended).
+The Xcode target has a **Fetch bundled LLM GGUF** build phase (`scripts/fetch_llm_gguf.sh`). On the first build it downloads the GGUF from Hugging Face into `Volocal/Resources/LLM/`, checks the SHA-256 in `scripts/llm-gguf.lock`, and Xcode copies that folder into the app. Later builds skip the download when the file already matches. The GGUF is gitignored, so it is never committed.
+
+You can fetch it yourself before opening Xcode:
+
+```bash
+./scripts/fetch_llm_gguf.sh
+```
+
+Build and run on a device. The language model is already in the app. Tap **Download Speech Models** on first launch for Parakeet and PocketTTS (~1.05 GB, Wi-Fi recommended).
+
+### Bundled language model
+
+| | |
+| --- | --- |
+| File | `Qwen_Qwen3.5-2B-Q4_K_S.gguf` |
+| Source | [bartowski/Qwen_Qwen3.5-2B-GGUF](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF) (imatrix quant of [Qwen/Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B)) |
+| Size | 1,327,696,992 bytes (about 1.24 GiB) |
+| SHA-256 | `55b574899b75180d084238ffbf5d3d165c568a3d73e1edbd3c826682a986c8d4` |
+| Lockfile | `scripts/llm-gguf.lock` (must match `ModelRegistry.llmFilename`) |
+| Runtime | context **8192**, K and V cache **q8_0**, Flash Attention on (required for a quantized V cache) |
+
+The build machine needs to reach `huggingface.co` the first time, and again whenever the lockfile changes. A checksum or size mismatch fails the build instead of bundling a partial file.
+
+Apple's uncompressed app limit is 4 GB. This GGUF is about 1.24 GiB. The app binary and frameworks are tens of MB on top of that (not measured here; this environment has no Xcode). Speech models are **not** in the bundle: Parakeet (~450 MB) is downloaded into the app's Documents directory by FluidAudio, and PocketTTS (~600 MB) is downloaded into `Library/Caches/fluidaudio`. After setup the phone holds roughly 2.4 GB of models, and the App Store binary itself stays near 1.3 GB, under the 4 GB limit. A build this large will usually install over Wi-Fi.
 
 ## Architecture
 
