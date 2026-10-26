@@ -34,19 +34,15 @@ final class STTManager: ObservableObject {
 
     init() {}
 
-    /// Download Parakeet EOU models from HuggingFace and load into memory.
+    /// Load the bundled Parakeet EOU models. Does not download.
     func initialize() async {
+        guard let bundleDir = ModelRegistry.parakeetModelDirectory, ModelRegistry.parakeetModelsPresent else {
+            self.error = "Speech recognition models are missing from the app bundle. Rebuild the app. Volocal does not download them."
+            logger.error("Bundled Parakeet EOU models are missing")
+            return
+        }
+
         do {
-            let modelsDir = Self.modelsDirectory()
-            let modelDir = modelsDir.appendingPathComponent(Repo.parakeetEou320.folderName)
-
-            let encoderPath = modelDir.appendingPathComponent("streaming_encoder.mlmodelc")
-            if !FileManager.default.fileExists(atPath: encoderPath.path) {
-                logger.info("Downloading Parakeet EOU models...")
-                try await DownloadUtils.downloadRepo(.parakeetEou320, to: modelsDir)
-                logger.info("Parakeet EOU models downloaded")
-            }
-
             let manager = StreamingEouAsrManager(chunkSize: .ms320, eouDebounceMs: 300)
 
             await manager.setPartialCallback { [weak self] text in
@@ -73,8 +69,15 @@ final class STTManager: ObservableObject {
                 }
             }
 
-            logger.info("Loading Parakeet EOU models from \(modelDir.path)...")
-            try await manager.loadModels(modelDir: modelDir)
+            do {
+                logger.info("Loading Parakeet EOU models from \(bundleDir.path)...")
+                try await manager.loadModels(modelDir: bundleDir)
+            } catch {
+                logger.error("Could not load Parakeet from the app bundle: \(error.localizedDescription). Copying the bundled files locally with no network.")
+                let localDir = try ModelRegistry.copyParakeetToDocuments(from: bundleDir)
+                logger.info("Loading Parakeet EOU models from \(localDir.path)...")
+                try await manager.loadModels(modelDir: localDir)
+            }
             self.asrManager = manager
             logger.info("Parakeet EOU ready")
         } catch {
@@ -160,14 +163,5 @@ final class STTManager: ObservableObject {
         transcript += text + "\n"
         partialResult = ""
         onUtteranceCompleted?(text)
-    }
-
-    // MARK: - Private
-
-    static func modelsDirectory() -> URL {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let dir = docs.appendingPathComponent("models", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir
     }
 }

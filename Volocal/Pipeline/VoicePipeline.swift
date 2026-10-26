@@ -73,6 +73,11 @@ final class VoicePipeline: ObservableObject {
         metrics?.beginTracking("STT (Parakeet EOU)")
         await sttManager.initialize()
         metrics?.endTracking("STT (Parakeet EOU)")
+        if let sttError = sttManager.error {
+            currentError = sttError
+            loadingStatus = nil
+            return
+        }
 
         loadingStatus = "Loading language model..."
         guard let path = llmModelPath else {
@@ -95,6 +100,11 @@ final class VoicePipeline: ObservableObject {
         loadingStatus = "Loading text-to-speech..."
         ttsManager.metrics = metrics
         await ttsManager.initialize()
+        if let ttsError = ttsManager.error {
+            currentError = ttsError
+            loadingStatus = nil
+            return
+        }
 
         loadingStatus = nil
         isReady = true
