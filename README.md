@@ -46,13 +46,13 @@ Moving STT to [FluidAudio](https://github.com/FluidInference/FluidAudio) (CoreML
 | Component | Model                                                                                       | How you get it | Runtime           |
 | --------- | ------------------------------------------------------------------------------------------- | -------------- | ----------------- |
 | STT       | [Parakeet EOU 320](https://huggingface.co/FluidInference/parakeet-realtime-eou-120m-coreml) | Runtime download, ~450 MB | CoreML (ANE)      |
-| LLM       | [Qwen3.5-2B Q4_K_S](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF)                  | Bundled at build time, 1,327,696,992 bytes | llama.cpp (Metal), ctx 8192, KV q8_0 |
+| LLM       | [Qwen3.5-2B Instruct Q4_K_M](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF)         | Bundled at build time, 1,396,198,496 bytes | llama.cpp (Metal), ctx 8192, KV q8_0 |
 | TTS       | [PocketTTS](https://huggingface.co/FluidInference/pocket-tts-coreml)                        | Runtime download, ~600 MB | CoreML (CPU+GPU)  |
 
 Why these specifically:
 
 - **Parakeet EOU** over Moonshine/Whisper — lower WER (4.87% vs 6.65% Moonshine Medium), half the parameters, and end-of-utterance detection is built into the model so you don't need a separate VAD.
-- **Qwen3.5-2B** over 0.8B — MMLU-Pro nearly doubles (29.7 → 55.3). Slower (~32 vs ~70 tok/s) but the quality difference is obvious in conversation. Q4_K_S is 1,327,696,992 bytes. Context is fixed at 8192 with K and V quantized to q8_0.
+- **Qwen3.5-2B** over 0.8B — MMLU-Pro nearly doubles (29.7 → 55.3). Slower (~32 vs ~70 tok/s) but the quality difference is obvious in conversation. The bundled quant is Q4_K_M (1,396,198,496 bytes) of the official post-trained model, which is the instruct checkpoint. Qwen does not ship a separate `-Instruct` repo. Context is fixed at 8192 with K and V quantized to q8_0.
 - **PocketTTS** — best quality we found at this size (100M params). ~80ms to first audio, supports voice cloning from a 5-second clip.
 
 ### Audio
@@ -86,16 +86,18 @@ Build and run on a device. The language model is already in the app. Tap **Downl
 
 | | |
 | --- | --- |
-| File | `Qwen_Qwen3.5-2B-Q4_K_S.gguf` |
-| Source | [bartowski/Qwen_Qwen3.5-2B-GGUF](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF) (imatrix quant of [Qwen/Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B)) |
-| Size | 1,327,696,992 bytes (about 1.24 GiB) |
-| SHA-256 | `55b574899b75180d084238ffbf5d3d165c568a3d73e1edbd3c826682a986c8d4` |
+| File | `Qwen_Qwen3.5-2B-Q4_K_M.gguf` |
+| Source | [bartowski/Qwen_Qwen3.5-2B-GGUF](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF) (imatrix Q4_K_M of the post-trained [Qwen/Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B) instruct model) |
+| Size | 1,396,198,496 bytes (about 1.30 GiB) |
+| SHA-256 | `57a1085840f497d764a7fc5d346922dbde961efb54cc792ea81d694fd846a1d8` |
 | Lockfile | `scripts/llm-gguf.lock` (must match `ModelRegistry.llmFilename`) |
 | Runtime | context **8192**, K and V cache **q8_0**, Flash Attention on (required for a quantized V cache) |
 
+The prompt ends with the official non-thinking prefix from `Qwen/Qwen3.5-2B`'s chat template (an assistant header plus an empty think block). Generation stops on the GGUF eos token `<|im_end|>` (id 248046) through `llama_vocab_is_eog`.
+
 The build machine needs to reach `huggingface.co` the first time, and again whenever the lockfile changes. A checksum or size mismatch fails the build instead of bundling a partial file.
 
-Apple's uncompressed app limit is 4 GB. This GGUF is about 1.24 GiB. The app binary and frameworks are tens of MB on top of that (not measured here; this environment has no Xcode). Speech models are **not** in the bundle: Parakeet (~450 MB) is downloaded into the app's Documents directory by FluidAudio, and PocketTTS (~600 MB) is downloaded into `Library/Caches/fluidaudio`. After setup the phone holds roughly 2.4 GB of models, and the App Store binary itself stays near 1.3 GB, under the 4 GB limit. A build this large will usually install over Wi-Fi.
+Apple's uncompressed app limit is 4 GB. This GGUF is about 1.30 GiB. The app binary and frameworks are tens of MB on top of that (not measured here; this environment has no Xcode). Speech models are **not** in the bundle: Parakeet (~450 MB) is downloaded into the app's Documents directory by FluidAudio, and PocketTTS (~600 MB) is downloaded into `Library/Caches/fluidaudio`. After setup the phone holds roughly 2.5 GB of models, and the App Store binary itself stays near 1.4 GB, under the 4 GB limit. A build this large will usually install over Wi-Fi.
 
 ## Architecture
 

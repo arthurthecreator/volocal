@@ -33,6 +33,6 @@ REQUIREMENTS
 
 - iOS 17 or later
 - Physical device only (Neural Engine is not available in the Simulator)
-- About 1.3 GB installed (language model included), plus ~1.05 GB of speech models on first launch
+- About 1.4 GB installed (language model included), plus ~1.05 GB of speech models on first launch
 
 Volocal is MIT licensed and open source. Built by Fikri Karim.

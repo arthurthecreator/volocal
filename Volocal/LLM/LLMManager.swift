@@ -53,14 +53,16 @@ final class LLMManager: ObservableObject {
                     self.tokensPerSecond = 0
                 }
 
-                // Build multi-turn ChatML prompt from history
+                // ChatML matching Qwen/Qwen3.5-2B's chat_template.jinja.
+                // Past assistant turns are plain text (no empty think blocks).
                 var fullPrompt = "<|im_start|>system\n\(systemPrompt)<|im_end|>\n"
                 for message in history {
                     let role = message.role == .user ? "user" : "assistant"
                     fullPrompt += "<|im_start|>\(role)\n\(message.text)<|im_end|>\n"
                 }
-                // Pre-fill past <think> block to force non-thinking mode
-                fullPrompt += "<|im_start|>assistant\n<think>\n</think>\n"
+                // Official non-thinking generation prompt (enable_thinking=false):
+                // <|im_start|>assistant\n<think>\n\n</think>\n\n
+                fullPrompt += "<|im_start|>assistant\n<think>\n\n</think>\n\n"
 
                 let startTime = CFAbsoluteTimeGetCurrent()
                 var tokenCount = 0

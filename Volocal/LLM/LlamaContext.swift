@@ -179,7 +179,8 @@ actor LlamaContext {
 
         let newTokenId = llama_sampler_sample(sampling, context, batch.n_tokens - 1)
 
-        // Check for end of generation
+        // Stop on the GGUF end-of-generation set. This model's eos token is
+        // <|im_end|> (id 248046). No separate stop-string list is required.
         if llama_vocab_is_eog(vocab, newTokenId) {
             isDone = true
             return nil
