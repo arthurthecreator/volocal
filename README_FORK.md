@@ -35,7 +35,7 @@ xcrun devicectl device install app --device UDID \
   build/DerivedData/Build/Products/Debug-iphoneos/Volocal.app
 ```
 
-Le chemin exact de `Volocal.app` est celui imprimé par `xcodebuild` (`touch` / `CodeSign`). Team déjà dans `project.yml` : `DEVELOPMENT_TEAM: FBS8R927D4`. Bundle id : `com.fikrikarim.volocal`.
+Le chemin exact de `Volocal.app` est celui imprimé par `xcodebuild` (`touch` / `CodeSign`). Signature dans `project.yml` : `DEVELOPMENT_TEAM: CDMG5NRWRF`, bundle id `com.pointbarre.volocal` (`bundleIdPrefix: com.pointbarre`). Une cible de test générée ensuite prend le suffixe `.tests` sur ce préfixe.
 
 ## Copie des modèles
 
@@ -96,7 +96,7 @@ PocketTTS se copie depuis la **racine** de `FluidInference/pocket-tts-coreml`, p
 `--destination` est relatif à la racine du conteneur (pas à Documents). `--domain-type appDataContainer` est obligatoire.
 
 ```bash
-APP=com.fikrikarim.volocal
+APP=com.pointbarre.volocal
 
 xcrun devicectl device copy to \
   --device UDID \
@@ -186,6 +186,7 @@ Ce fork (en plus des commits déjà présents : team ID, fastlane, badge App Sto
 | Contexte | `n_ctx` 2048 | `n_ctx` 8192 |
 | Cache KV | F16 par défaut | `type_k` et `type_v` = `GGML_TYPE_Q8_0`, Flash Attention forcée |
 | Partage de fichiers | absent | `UIFileSharingEnabled` + `LSSupportsOpeningDocumentsInPlace` |
+| Signature | team et bundle de l’upstream (`com.fikrikarim.volocal`) | `DEVELOPMENT_TEAM` `CDMG5NRWRF`, bundle `com.pointbarre.volocal` |
 
 Non touché : `SharedAudioEngine` (AVAudioEngine, AEC Voice Processing), le barge-in, les callbacks EOU, `speak` / `stop` de PocketTTS, le buffer de phrases. `VoicePipeline.configure` refuse seulement de passer `isReady` si un modèle n’a pas pu être chargé, pour laisser le message à l’écran.
 
