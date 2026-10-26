@@ -62,7 +62,12 @@ actor LlamaContext {
     }
 
     /// Create a new LlamaContext by loading a GGUF model file.
-    static func create(path: String, contextSize: UInt32 = 2048) throws -> LlamaContext {
+    ///
+    /// KV cache matches `llama-cli --cache-type-k q8_0 --cache-type-v q8_0`.
+    /// Quantized V is rejected unless Flash Attention is on (`llama-context.cpp`:
+    /// "quantized V cache was requested, but this requires Flash Attention").
+    /// `LLAMA_FLASH_ATTN_TYPE_AUTO` may still disable it, so it is forced on.
+    static func create(path: String, contextSize: UInt32 = ModelRegistry.llmContextSize) throws -> LlamaContext {
         retainBackend()
 
         var modelParams = llama_model_default_params()
@@ -73,6 +78,7 @@ actor LlamaContext {
         #endif
 
         guard let model = llama_model_load_from_file(path, modelParams) else {
+            releaseBackend()
             throw LlamaContextError.modelLoadFailed
         }
 
@@ -82,9 +88,13 @@ actor LlamaContext {
         let threadCount = Int32(max(1, min(8, ProcessInfo.processInfo.processorCount - 2)))
         ctxParams.n_threads = threadCount
         ctxParams.n_threads_batch = threadCount
+        ctxParams.type_k = GGML_TYPE_Q8_0
+        ctxParams.type_v = GGML_TYPE_Q8_0
+        ctxParams.flash_attn_type = LLAMA_FLASH_ATTN_TYPE_ENABLED
 
         guard let context = llama_init_from_model(model, ctxParams) else {
             llama_model_free(model)
+            releaseBackend()
             throw LlamaContextError.contextCreationFailed
         }
 
@@ -101,7 +111,7 @@ actor LlamaContext {
         // Set up sampler chain per Qwen3.5 recommended non-thinking params
         let sparams = llama_sampler_chain_default_params()
         self.sampling = llama_sampler_chain_init(sparams)!
-        llama_sampler_chain_add(self.sampling, llama_sampler_init_penalties(0, 0, 0, 2.0))  // presence_penalty=2.0
+        llama_sampler_chain_add(self.sampling, llama_sampler_init_penalties(llama_vocab_n_tokens(self.vocab), 64, 1.0, 0.0, 2.0))  // last_n=64, repeat=1, freq=0, presence=2
         llama_sampler_chain_add(self.sampling, llama_sampler_init_top_k(20))
         llama_sampler_chain_add(self.sampling, llama_sampler_init_top_p(1.0, 1))
         llama_sampler_chain_add(self.sampling, llama_sampler_init_min_p(0.0, 1))

@@ -73,25 +73,40 @@ final class VoicePipeline: ObservableObject {
         metrics?.beginTracking("STT (Parakeet EOU)")
         await sttManager.initialize()
         metrics?.endTracking("STT (Parakeet EOU)")
+        if let sttError = sttManager.error {
+            logger.error("STT load failed: \(sttError)")
+            currentError = sttError
+            loadingStatus = nil
+            return
+        }
 
         loadingStatus = "Loading language model..."
-        if let path = llmModelPath {
-            metrics?.beginTracking("LLM (llama.cpp)")
-            do {
-                try await llmManager.loadModel(path: path)
-            } catch {
-                logger.error("LLM load failed: \(error.localizedDescription)")
-                currentError = "LLM failed to load: \(error.localizedDescription)"
-                loadingStatus = nil
-                // Don't set isReady — stay on loading screen with error
-                return
-            }
-            metrics?.endTracking("LLM (llama.cpp)")
+        guard let path = llmModelPath else {
+            currentError = ModelRegistry.llmMissingMessage()
+            loadingStatus = nil
+            return
         }
+        metrics?.beginTracking("LLM (llama.cpp)")
+        do {
+            try await llmManager.loadModel(path: path)
+        } catch {
+            logger.error("LLM load failed: \(error.localizedDescription)")
+            currentError = "LLM failed to load: \(error.localizedDescription)"
+            loadingStatus = nil
+            // Don't set isReady — stay on loading screen with error
+            return
+        }
+        metrics?.endTracking("LLM (llama.cpp)")
 
         loadingStatus = "Loading text-to-speech..."
         ttsManager.metrics = metrics
         await ttsManager.initialize()
+        if let ttsError = ttsManager.error {
+            logger.error("TTS load failed: \(ttsError)")
+            currentError = ttsError
+            loadingStatus = nil
+            return
+        }
 
         loadingStatus = nil
         isReady = true

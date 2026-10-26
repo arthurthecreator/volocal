@@ -21,18 +21,26 @@ final class TTSManager: ObservableObject {
     /// Shared audio engine — injected by VoicePipeline
     weak var sharedAudio: SharedAudioEngine?
 
-    static let voiceNames = [
-        "alba", "marius", "javert", "jean",
-        "fantine", "cosette", "eponine", "azelma"
-    ]
+    static let voiceNames = ModelRegistry.pocketTTSVoiceNames
 
     init() {}
 
-    /// Initialize the TTS engine. Downloads CoreML models on first use,
-    /// then runs a dummy generation to warm up.
+    /// Load PocketTTS from Documents or the bundle, then warm up.
+    ///
+    /// `PocketTtsManager.initialize()` calls `ensureModels` / `ensureVoice`,
+    /// which download from Hugging Face when a file is missing. This method
+    /// returns before that call unless every required file is already local.
     func initialize() async {
+        error = nil
+        guard let base = ModelRegistry.ttsBaseDirectory() else {
+            let message = ModelRegistry.ttsMissingMessage()
+            self.error = message
+            logger.error("\(message)")
+            return
+        }
+
         do {
-            let manager = PocketTtsManager()
+            let manager = PocketTtsManager(directory: base)
             try await manager.initialize()
             self.engine = manager
 

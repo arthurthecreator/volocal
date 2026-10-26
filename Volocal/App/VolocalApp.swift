@@ -33,6 +33,7 @@ struct VolocalApp: App {
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .active:
+                modelManager.refresh()
                 metrics.startMonitoring()
             case .inactive, .background:
                 metrics.stopMonitoring()
