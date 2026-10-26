@@ -1,6 +1,6 @@
 # Volocal
 
-Fully local voice AI for iOS. No cloud, no API keys, no internet after setup.
+Fully local voice AI for iOS. No cloud, no API keys, no internet connection required to run.
 
 STT → LLM → TTS, streaming in real-time on your iPhone.
 
@@ -24,8 +24,8 @@ So I decided to replicate the voice AI experience to fully run locally on my iPh
 - Real-time voice conversations
 - Interrupt mid-sentence (barge-in)
 - Hardware echo cancellation so the mic doesn't pick up its own output
-- Language model is included in the app (fetched when you build; not stored in git)
-- Speech models (~1.05 GB) download on first launch with per-model progress
+- Language, speech recognition, and text-to-speech models are included in the app (fetched when you build; not stored in git)
+- No model download on first launch
 
 ## Why this stack
 
@@ -45,9 +45,9 @@ Moving STT to [FluidAudio](https://github.com/FluidInference/FluidAudio) (CoreML
 
 | Component | Model                                                                                       | How you get it | Runtime           |
 | --------- | ------------------------------------------------------------------------------------------- | -------------- | ----------------- |
-| STT       | [Parakeet EOU 320](https://huggingface.co/FluidInference/parakeet-realtime-eou-120m-coreml) | Runtime download, ~450 MB | CoreML (ANE)      |
+| STT       | [Parakeet EOU 320](https://huggingface.co/FluidInference/parakeet-realtime-eou-120m-coreml) | Bundled at build time, 224,238,533 bytes | CoreML (ANE)      |
 | LLM       | [Qwen3.5-2B Instruct Q4_K_M](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF)         | Bundled at build time, 1,396,198,496 bytes | llama.cpp (Metal), ctx 8192, KV q8_0 |
-| TTS       | [PocketTTS](https://huggingface.co/FluidInference/pocket-tts-coreml)                        | Runtime download, ~600 MB | CoreML (CPU+GPU)  |
+| TTS       | [PocketTTS](https://huggingface.co/FluidInference/pocket-tts-coreml)                        | Bundled at build time, 732,524,727 bytes | CoreML (CPU+GPU)  |
 
 Why these specifically:
 
@@ -72,15 +72,16 @@ xcodegen generate
 open Volocal.xcodeproj
 ```
 
-The Xcode target has a **Fetch bundled LLM GGUF** build phase (`scripts/fetch_llm_gguf.sh`). On the first build it downloads the GGUF from Hugging Face into `Volocal/Resources/LLM/`, checks the SHA-256 in `scripts/llm-gguf.lock`, and Xcode copies that folder into the app. Later builds skip the download when the file already matches. The GGUF is gitignored, so it is never committed.
+The Xcode target has two pre-build phases, **Fetch bundled LLM GGUF** (`scripts/fetch_llm_gguf.sh`) and **Fetch bundled speech models** (`scripts/fetch_audio_models.sh`). On the first build they download the files from Hugging Face into `Volocal/Resources/LLM/` and `Volocal/Resources/Audio/`, check every SHA-256 in `scripts/llm-gguf.lock` and `scripts/audio-models.lock`, and Xcode copies those folders into the app. Later builds skip a file when its size and checksum already match. The payloads are gitignored, so they are never committed.
 
-You can fetch it yourself before opening Xcode:
+You can fetch them yourself before opening Xcode:
 
 ```bash
 ./scripts/fetch_llm_gguf.sh
+./scripts/fetch_audio_models.sh
 ```
 
-Build and run on a device. The language model is already in the app. Tap **Download Speech Models** on first launch for Parakeet and PocketTTS (~1.05 GB, Wi-Fi recommended).
+Build and run on a device. All three models are already in the app. There is no first-launch download. If a bundled file is missing, the app stops with an error and does not use the network.
 
 ### Bundled language model
 
@@ -95,9 +96,25 @@ Build and run on a device. The language model is already in the app. Tap **Downl
 
 The prompt ends with the official non-thinking prefix from `Qwen/Qwen3.5-2B`'s chat template (an assistant header plus an empty think block). Generation stops on the GGUF eos token `<|im_end|>` (id 248046) through `llama_vocab_is_eog`.
 
-The build machine needs to reach `huggingface.co` the first time, and again whenever the lockfile changes. A checksum or size mismatch fails the build instead of bundling a partial file.
+### Bundled speech models
 
-Apple's uncompressed app limit is 4 GB. This GGUF is about 1.30 GiB. The app binary and frameworks are tens of MB on top of that (not measured here; this environment has no Xcode). Speech models are **not** in the bundle: Parakeet (~450 MB) is downloaded into the app's Documents directory by FluidAudio, and PocketTTS (~600 MB) is downloaded into `Library/Caches/fluidaudio`. After setup the phone holds roughly 2.5 GB of models, and the App Store binary itself stays near 1.4 GB, under the 4 GB limit. A build this large will usually install over Wi-Fi.
+`scripts/fetch_audio_models.sh` reads `scripts/audio-models.lock` (107 files, 956,763,260 bytes) and writes them under `Volocal/Resources/Audio/`. The app loads those files from the bundle. If CoreML cannot read a compiled model out of the read-only bundle, the app copies that tree once and loads the copy: Parakeet goes to `Documents/models/parakeet-eou-streaming/320ms`, and PocketTTS goes to `Library/Caches/fluidaudio/Models/pocket-tts` (FluidAudio's default cache). That copy does not use the network.
+
+| | Parakeet EOU 320 | PocketTTS |
+| --- | --- | --- |
+| Source | [FluidInference/parakeet-realtime-eou-120m-coreml](https://huggingface.co/FluidInference/parakeet-realtime-eou-120m-coreml) `320ms/` | [FluidInference/pocket-tts-coreml](https://huggingface.co/FluidInference/pocket-tts-coreml) |
+| Files | 17 | 90 |
+| Size | 224,238,533 bytes | 732,524,727 bytes |
+| Lockfile | `scripts/audio-models.lock` | `scripts/audio-models.lock` |
+| Bundle path | `Audio/STT/parakeet-eou-streaming/320ms` | `Audio/TTS` (`Models/pocket-tts` underneath) |
+
+The Parakeet set is what FluidAudio's `downloadRepo(.parakeetEou320)` keeps: `streaming_encoder.mlmodelc`, `decoder.mlmodelc`, `joint_decision.mlmodelc`, `vocab.json`, and `streaming_encoder_metadata.json`. The duplicate `.mlpackage` trees are not included. PocketTTS is the set `PocketTtsResourceDownloader.ensureModels` expects at FluidAudio commit `b0a3eeec` (fikrikarim/FluidAudio `main`), including the eight built-in voice prompts. The optional voice-cloning model `mimi_encoder.mlmodelc` is not part of that set and is not bundled. The conversation pipeline does not call it. That unused API would still try to download the encoder.
+
+Every file's URL, byte size, and SHA-256 is in the lockfile. The fetch script checks them before the app is signed. A mismatch fails the build.
+
+The build machine needs to reach `huggingface.co` the first time, and again whenever a lockfile changes. A checksum or size mismatch fails the build instead of bundling a partial file.
+
+Apple's uncompressed app limit is 4 GB (4,294,967,296 bytes). The three model payloads together are 2,352,961,756 bytes (2.191 GiB): the Q4_K_M GGUF at 1,396,198,496 bytes plus 956,763,260 bytes of speech models. That leaves 1,942,005,540 bytes (1.809 GiB) for the app binary, frameworks, and assets, which were not measured here (this environment has no Xcode). The total stays under 4 GB. An app this large will usually install over Wi-Fi.
 
 ## Architecture
 
@@ -121,7 +138,7 @@ Volocal/
 ├── LLM/        # llama.cpp via llama.swift
 ├── TTS/        # PocketTTS via FluidAudio
 ├── Pipeline/   # Voice pipeline, sentence buffer, conversation UI
-├── Models/     # Model registry, download manager, onboarding
+├── Models/     # Model registry and missing-bundle screen
 └── Debug/      # Metrics overlay (RAM, CPU, thermal)
 ```
 

@@ -1,16 +1,14 @@
 import SwiftUI
 
-/// Onboarding screen showing all model download status with per-model progress.
+/// Shown only when a bundled model file is missing. There is no download.
 struct OnboardingView: View {
     @EnvironmentObject var modelManager: UnifiedModelManager
-    @State private var isDownloading = false
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 32) {
                 Spacer()
 
-                // App icon area
                 VStack(spacing: 12) {
                     Image(systemName: "waveform.circle.fill")
                         .font(.system(size: 80))
@@ -24,61 +22,31 @@ struct OnboardingView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                // Model status cards
                 VStack(spacing: 12) {
                     ForEach(ModelRegistry.ModelType.allCases) { type in
                         ModelStatusCard(
                             type: type,
-                            state: modelManager.modelStates[type] ?? .notDownloaded,
-                            onRetry: {
-                                Task { await modelManager.retryModel(type) }
-                            }
+                            state: modelManager.modelStates[type] ?? .error(ModelRegistry.missingBundledModelsMessage)
                         )
                     }
                 }
                 .padding(.horizontal)
 
-                // Wi-Fi recommendation. The language model is already in the app.
-                Text("Speech models download on first launch (~1.05 GB, Wi-Fi). The language model is included.")
+                Text("The language, speech recognition, and text-to-speech models are included in the app. A missing file is a build problem. Volocal does not download models.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
 
-                Spacer()
-
-                // Download button
-                Button {
-                    isDownloading = true
-                    Task {
-                        await modelManager.downloadAllModels()
-                        isDownloading = false
-                    }
-                } label: {
-                    HStack {
-                        if isDownloading {
-                            ProgressView()
-                                .tint(.white)
-                                .padding(.trailing, 4)
-                        }
-                        Text(isDownloading ? "Downloading..." : "Download Speech Models")
-                    }
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(isDownloading || modelManager.allModelsReady)
-                .padding(.horizontal)
-
                 if let error = modelManager.error {
                     Text(error)
                         .font(.caption)
                         .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
 
-                Spacer().frame(height: 20)
+                Spacer()
             }
             .navigationTitle("")
         }
@@ -90,7 +58,6 @@ struct OnboardingView: View {
 struct ModelStatusCard: View {
     let type: ModelRegistry.ModelType
     let state: UnifiedModelManager.ModelState
-    var onRetry: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 12) {
@@ -110,24 +77,11 @@ struct ModelStatusCard: View {
                 Text(type.detail)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-
-                if case .downloading(let progress) = state {
-                    ProgressView(value: progress)
-                        .tint(.blue)
-                }
             }
 
             if state.isReady {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.green)
-            } else if case .error = state, type != .llm {
-                // The LLM is not downloaded at runtime, so a retry would not fetch it.
-                Button {
-                    onRetry?()
-                } label: {
-                    Image(systemName: "arrow.clockwise.circle.fill")
-                        .foregroundStyle(.orange)
-                }
             }
         }
         .padding()
@@ -138,23 +92,15 @@ struct ModelStatusCard: View {
     @ViewBuilder
     private var statusLabel: some View {
         switch state {
-        case .notDownloaded:
-            Text(type.sizeDescription)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        case .downloading(let progress):
-            Text("\(Int(progress * 100))%")
-                .font(.caption.monospacedDigit())
-                .foregroundStyle(.blue)
         case .downloaded:
-            Text(type == .llm ? "Included" : "Ready")
+            Text("Included")
                 .font(.caption)
                 .foregroundStyle(.green)
         case .error(let msg):
             Text(msg)
                 .font(.caption)
                 .foregroundStyle(.red)
-                .lineLimit(1)
+                .lineLimit(3)
         }
     }
 }

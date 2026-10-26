@@ -27,11 +27,15 @@ targets:
     sources:
       - path: Volocal
         excludes:
-          # GGUF is fetched into this folder and copied as a folder reference.
+          # Fetched at build time and copied as folder references.
           - "Resources/LLM/**"
+          - "Resources/Audio/**"
       - path: Volocal/PrivacyInfo.xcprivacy
         buildPhase: resources
       - path: Volocal/Resources/LLM
+        type: folder
+        buildPhase: resources
+      - path: Volocal/Resources/Audio
         type: folder
         buildPhase: resources
     preBuildScripts:
@@ -40,6 +44,11 @@ targets:
         script: |
           set -euo pipefail
           /bin/bash "${SRCROOT}/scripts/fetch_llm_gguf.sh"
+      - name: Fetch bundled speech models
+        basedOnDependencyAnalysis: false
+        script: |
+          set -euo pipefail
+          /bin/bash "${SRCROOT}/scripts/fetch_audio_models.sh"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.fikrikarim.volocal

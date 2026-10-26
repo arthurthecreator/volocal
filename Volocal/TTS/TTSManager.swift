@@ -21,24 +21,37 @@ final class TTSManager: ObservableObject {
     /// Shared audio engine — injected by VoicePipeline
     weak var sharedAudio: SharedAudioEngine?
 
-    static let voiceNames = [
-        "alba", "marius", "javert", "jean",
-        "fantine", "cosette", "eponine", "azelma"
-    ]
+    static let voiceNames = ModelRegistry.pocketTtsVoices
 
     init() {}
 
-    /// Initialize the TTS engine. Downloads CoreML models on first use,
-    /// then runs a dummy generation to warm up.
+    /// Load the bundled PocketTTS models, then run a dummy generation to warm up.
+    /// Does not download. A missing bundle fails before FluidAudio can reach the network.
     func initialize() async {
-        do {
-            let manager = PocketTtsManager()
-            try await manager.initialize()
-            self.engine = manager
+        guard let bundleDir = ModelRegistry.pocketTtsBaseDirectory, ModelRegistry.pocketTtsModelsPresent else {
+            self.error = "Text-to-speech models are missing from the app bundle. Rebuild the app. Volocal does not download them."
+            logger.error("Bundled PocketTTS models are missing")
+            return
+        }
 
+        do {
+            try await loadEngine(directory: bundleDir)
+        } catch {
+            logger.error("Could not load PocketTTS from the app bundle: \(error.localizedDescription). Copying the bundled files locally with no network.")
+            do {
+                let localDir = try ModelRegistry.copyPocketTtsToCache(from: bundleDir)
+                try await loadEngine(directory: localDir)
+            } catch {
+                self.error = "TTS init failed: \(error.localizedDescription)"
+                return
+            }
+        }
+
+        do {
             // Warm up: force CoreML to compile models
             logger.info("TTS warmup: running dummy generation...")
-            let stream = try await manager.synthesizeStreaming(text: "Hi", voice: "alba")
+            guard let engine else { throw TTSError.engineNotLoaded }
+            let stream = try await engine.synthesizeStreaming(text: "Hi", voice: "alba")
             for try await _ in stream {
                 break // One frame is enough
             }
@@ -46,6 +59,12 @@ final class TTSManager: ObservableObject {
         } catch {
             self.error = "TTS init failed: \(error.localizedDescription)"
         }
+    }
+
+    private func loadEngine(directory: URL) async throws {
+        let manager = PocketTtsManager(directory: directory)
+        try await manager.initialize()
+        self.engine = manager
     }
 
     /// Synthesize text via streaming and play frames through shared audio engine.
