@@ -24,7 +24,7 @@ final class LLMManager: ObservableObject {
     init() {}
 
     func loadModel(path: String) async throws {
-        llamaContext = try LlamaContext.create(path: path, contextSize: 2048)
+        llamaContext = try LlamaContext.create(path: path, contextSize: ModelRegistry.llmContextSize)
     }
 
     /// Generate response from conversation history.

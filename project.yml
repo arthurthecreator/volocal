@@ -57,6 +57,8 @@ targets:
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         NSMicrophoneUsageDescription: "Volocal needs microphone access for voice conversations."
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
     entitlements:
       path: Volocal/Volocal.entitlements
       properties:

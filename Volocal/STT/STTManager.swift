@@ -34,19 +34,17 @@ final class STTManager: ObservableObject {
 
     init() {}
 
-    /// Download Parakeet EOU models from HuggingFace and load into memory.
+    /// Load Parakeet EOU from Documents or the bundle. Never downloads.
     func initialize() async {
+        error = nil
+        guard let modelDir = ModelRegistry.sttModelDirectory() else {
+            let message = ModelRegistry.sttMissingMessage()
+            self.error = message
+            logger.error("\(message)")
+            return
+        }
+
         do {
-            let modelsDir = Self.modelsDirectory()
-            let modelDir = modelsDir.appendingPathComponent(Repo.parakeetEou320.folderName)
-
-            let encoderPath = modelDir.appendingPathComponent("streaming_encoder.mlmodelc")
-            if !FileManager.default.fileExists(atPath: encoderPath.path) {
-                logger.info("Downloading Parakeet EOU models...")
-                try await DownloadUtils.downloadRepo(.parakeetEou320, to: modelsDir)
-                logger.info("Parakeet EOU models downloaded")
-            }
-
             let manager = StreamingEouAsrManager(chunkSize: .ms320, eouDebounceMs: 300)
 
             await manager.setPartialCallback { [weak self] text in
@@ -160,14 +158,5 @@ final class STTManager: ObservableObject {
         transcript += text + "\n"
         partialResult = ""
         onUtteranceCompleted?(text)
-    }
-
-    // MARK: - Private
-
-    static func modelsDirectory() -> URL {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let dir = docs.appendingPathComponent("models", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir
     }
 }

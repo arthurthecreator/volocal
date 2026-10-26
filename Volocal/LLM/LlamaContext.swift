@@ -62,7 +62,12 @@ actor LlamaContext {
     }
 
     /// Create a new LlamaContext by loading a GGUF model file.
-    static func create(path: String, contextSize: UInt32 = 2048) throws -> LlamaContext {
+    ///
+    /// KV cache matches `llama-cli --cache-type-k q8_0 --cache-type-v q8_0`.
+    /// Quantized V is rejected unless Flash Attention is on (`llama-context.cpp`:
+    /// "quantized V cache was requested, but this requires Flash Attention").
+    /// `LLAMA_FLASH_ATTN_TYPE_AUTO` may still disable it, so it is forced on.
+    static func create(path: String, contextSize: UInt32 = ModelRegistry.llmContextSize) throws -> LlamaContext {
         retainBackend()
 
         var modelParams = llama_model_default_params()
@@ -73,6 +78,7 @@ actor LlamaContext {
         #endif
 
         guard let model = llama_model_load_from_file(path, modelParams) else {
+            releaseBackend()
             throw LlamaContextError.modelLoadFailed
         }
 
@@ -82,9 +88,13 @@ actor LlamaContext {
         let threadCount = Int32(max(1, min(8, ProcessInfo.processInfo.processorCount - 2)))
         ctxParams.n_threads = threadCount
         ctxParams.n_threads_batch = threadCount
+        ctxParams.type_k = GGML_TYPE_Q8_0
+        ctxParams.type_v = GGML_TYPE_Q8_0
+        ctxParams.flash_attn_type = LLAMA_FLASH_ATTN_TYPE_ENABLED
 
         guard let context = llama_init_from_model(model, ctxParams) else {
             llama_model_free(model)
+            releaseBackend()
             throw LlamaContextError.contextCreationFailed
         }
 
