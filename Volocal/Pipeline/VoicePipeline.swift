@@ -75,19 +75,22 @@ final class VoicePipeline: ObservableObject {
         metrics?.endTracking("STT (Parakeet EOU)")
 
         loadingStatus = "Loading language model..."
-        if let path = llmModelPath {
-            metrics?.beginTracking("LLM (llama.cpp)")
-            do {
-                try await llmManager.loadModel(path: path)
-            } catch {
-                logger.error("LLM load failed: \(error.localizedDescription)")
-                currentError = "LLM failed to load: \(error.localizedDescription)"
-                loadingStatus = nil
-                // Don't set isReady — stay on loading screen with error
-                return
-            }
-            metrics?.endTracking("LLM (llama.cpp)")
+        guard let path = llmModelPath else {
+            currentError = "Language model is missing from the app bundle"
+            loadingStatus = nil
+            return
         }
+        metrics?.beginTracking("LLM (llama.cpp)")
+        do {
+            try await llmManager.loadModel(path: path)
+        } catch {
+            logger.error("LLM load failed: \(error.localizedDescription)")
+            currentError = "LLM failed to load: \(error.localizedDescription)"
+            loadingStatus = nil
+            // Don't set isReady — stay on loading screen with error
+            return
+        }
+        metrics?.endTracking("LLM (llama.cpp)")
 
         loadingStatus = "Loading text-to-speech..."
         ttsManager.metrics = metrics

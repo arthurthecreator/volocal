@@ -1,4 +1,5 @@
 import Foundation
+import LlamaSwift
 import os
 
 private let logger = Logger(subsystem: "com.volocal.app", category: "llm")
@@ -24,7 +25,12 @@ final class LLMManager: ObservableObject {
     init() {}
 
     func loadModel(path: String) async throws {
-        llamaContext = try LlamaContext.create(path: path, contextSize: 2048)
+        // Context 8192 and q8_0 K/V are explicit (not llama.cpp defaults).
+        llamaContext = try LlamaContext.create(
+            path: path,
+            contextSize: 8192,
+            kvCacheType: GGML_TYPE_Q8_0
+        )
     }
 
     /// Generate response from conversation history.

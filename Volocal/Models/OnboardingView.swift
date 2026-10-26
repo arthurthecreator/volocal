@@ -38,10 +38,12 @@ struct OnboardingView: View {
                 }
                 .padding(.horizontal)
 
-                // Wi-Fi recommendation
-                Text("Recommended: download over Wi-Fi (~2.3 GB total)")
+                // Wi-Fi recommendation. The language model is already in the app.
+                Text("Speech models download on first launch (~1.05 GB, Wi-Fi). The language model is included.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
 
                 Spacer()
 
@@ -59,7 +61,7 @@ struct OnboardingView: View {
                                 .tint(.white)
                                 .padding(.trailing, 4)
                         }
-                        Text(isDownloading ? "Downloading..." : "Download All Models")
+                        Text(isDownloading ? "Downloading..." : "Download Speech Models")
                     }
                     .font(.headline)
                     .frame(maxWidth: .infinity)
@@ -105,6 +107,10 @@ struct ModelStatusCard: View {
                     statusLabel
                 }
 
+                Text(type.detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
                 if case .downloading(let progress) = state {
                     ProgressView(value: progress)
                         .tint(.blue)
@@ -114,7 +120,8 @@ struct ModelStatusCard: View {
             if state.isReady {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.green)
-            } else if case .error = state {
+            } else if case .error = state, type != .llm {
+                // The LLM is not downloaded at runtime, so a retry would not fetch it.
                 Button {
                     onRetry?()
                 } label: {
@@ -140,7 +147,7 @@ struct ModelStatusCard: View {
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.blue)
         case .downloaded:
-            Text("Ready")
+            Text(type == .llm ? "Included" : "Ready")
                 .font(.caption)
                 .foregroundStyle(.green)
         case .error(let msg):
