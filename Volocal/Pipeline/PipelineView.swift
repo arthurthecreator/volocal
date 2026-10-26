@@ -84,6 +84,11 @@ struct PipelineView: View {
             }
             .navigationTitle("Volocal")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Effacer la mémoire", role: .destructive) {
+                        pipeline.wipeMemory()
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         pipeline.resetChat()

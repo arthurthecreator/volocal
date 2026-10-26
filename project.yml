@@ -82,3 +82,31 @@ targets:
       path: Volocal/Volocal.entitlements
       properties:
         com.apple.security.device.audio-input: true
+  VolocalTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: VolocalTests
+    dependencies:
+      - target: Volocal
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pointbarre.volocal.tests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: CDMG5NRWRF
+        TARGETED_DEVICE_FAMILY: 1
+schemes:
+  Volocal:
+    build:
+      targets:
+        Volocal: all
+        VolocalTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - VolocalTests
+    archive:
+      config: Release

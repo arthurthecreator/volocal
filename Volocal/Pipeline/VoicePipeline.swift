@@ -121,6 +121,10 @@ final class VoicePipeline: ObservableObject {
         }
     }
 
+    func wipeMemory() {
+        llmManager.wipeMemory()
+    }
+
     func resetChat() {
         if state == .processing || state == .speaking {
             interrupt()
@@ -202,6 +206,8 @@ final class VoicePipeline: ObservableObject {
         let userMessage = ConversationMessage(role: .user, text: text)
         conversationHistory.append(userMessage)
         currentTranscript = text
+        // Finalized user transcript only. Partial STT text never reaches memory.
+        llmManager.recordUserTurn(text)
 
         // Forward partial transcript
         partialTranscript = sttManager.partialResult

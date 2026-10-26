@@ -8,13 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		01354C469FA9D25F726E9E9B /* ConversationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C45CAC47FAC2077DBF09D6 /* ConversationModel.swift */; };
+		0830784740D62A732589640C /* MemoryExtractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD6CCFE3689A8360A4122A4E /* MemoryExtractorTests.swift */; };
 		0D9F1920DE3CEC8F2C3DBD60 /* SentenceBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C4761BFF59B998E24EDE71 /* SentenceBuffer.swift */; };
 		17BF9DA27B0DAE6195BCD874 /* ModelLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9302DF6902D5B0BF3DBB94CC /* ModelLoadingView.swift */; };
 		2243A968E58E91F9B959F116 /* LlamaSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 6C0A850F27C81DF8E1F70522 /* LlamaSwift */; };
 		2641CA1C31825ED3240FFBBF /* MetricsOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD55CD53C6E932FD238993AA /* MetricsOverlay.swift */; };
+		2CACCE51E3B507E54CE0B2C1 /* MemoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41E4AC151BD5FA246F645D1 /* MemoryStoreTests.swift */; };
 		30DFFAC8BF2BD05FB1BEBF38 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC3A8FAA5BDBC2036829D04 /* ContentView.swift */; };
 		35F51AE847027348D965C33B /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6B189BB680EF1C79BCE706 /* OnboardingView.swift */; };
+		4AC0DF1BEF5602702FCF4C68 /* MemoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE0C45AABDAE96CE3A8EF60 /* MemoryStore.swift */; };
 		57CDC8721D4682FA2D0ED0B1 /* LlamaContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = A24B70B1FC8CE2B5CA8BEAF0 /* LlamaContext.swift */; };
+		662510E635BFB8F036C0B95E /* MemoryExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 454CC64BAFA8A30A178E5EA0 /* MemoryExtractor.swift */; };
 		85AED4395C4EA5F9B3BC44C0 /* STTManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42124AFAD76D1721B0F69AA /* STTManager.swift */; };
 		91304267999C29FCD88B2AE7 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = 85D4C9D7DD1C1EDD76869C82 /* FluidAudio */; };
 		95637663A2461440FAF22ABB /* PipelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0043CAD5AC8C2FE722C4C74C /* PipelineView.swift */; };
@@ -25,22 +29,35 @@
 		A680B8A61D166FB7C510DBD0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F5A949904EB0EA59094FD6C3 /* PrivacyInfo.xcprivacy */; };
 		BDFBC5D0A5A65CCAB16D2A8F /* VoicePipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55BD8F6E3E50B75C4A76AC5C /* VoicePipeline.swift */; };
 		C6C96C7B54DAB0D2F18C5C6D /* TTSManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AAB3650E87AF43D4BB88D6 /* TTSManager.swift */; };
+		C74534B3A65B4B1B38EF6DE0 /* MemoryEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404AE1C8D87B9498CCB25C96 /* MemoryEntry.swift */; };
+		CCE02A5D7AF789F28A72C4FE /* LLM in Resources */ = {isa = PBXBuildFile; fileRef = 0CB5E8CCB252DFA3FB29EA8B /* LLM */; };
 		E3D279E7690E83F7E5B16D6C /* LLMManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2315FEB668579CE9B2410109 /* LLMManager.swift */; };
-		F0A6C3D85B1E4729C7D4E8A2 /* LLM in Resources */ = {isa = PBXBuildFile; fileRef = A91C3E7B05D24F68A4E1C0B3 /* LLM */; };
-		F1B2C3D4E5A64789B0C1D2E3 /* Audio in Resources */ = {isa = PBXBuildFile; fileRef = E8A1C4D72B6F4905A3C9E1D4 /* Audio */; };
 		F2832130B64B921A67A30BE9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2FCD459848B578953ED4DD1B /* Assets.xcassets */; };
 		F387267D1BD267D810C327BA /* SystemMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = C792F48B773B8AB7FB665186 /* SystemMetrics.swift */; };
+		FA2172C1341701DFD04DAE79 /* Audio in Resources */ = {isa = PBXBuildFile; fileRef = 2401DF3145CAE4F90EAC2643 /* Audio */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FA6CC0EBCCD8C62270EDE22F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E7C974DE5134E65D4BD94D67 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4B0D3CFCE1420835E634B20E;
+			remoteInfo = Volocal;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		0043CAD5AC8C2FE722C4C74C /* PipelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineView.swift; sourceTree = "<group>"; };
+		0CB5E8CCB252DFA3FB29EA8B /* LLM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = LLM; path = Volocal/Resources/LLM; sourceTree = SOURCE_ROOT; };
 		174A173A569CA4BF546109AC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		2315FEB668579CE9B2410109 /* LLMManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMManager.swift; sourceTree = "<group>"; };
+		2401DF3145CAE4F90EAC2643 /* Audio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Audio; path = Volocal/Resources/Audio; sourceTree = SOURCE_ROOT; };
 		291266CACA92E5C922EAEAD6 /* ModelRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelRegistry.swift; sourceTree = "<group>"; };
 		2B6B189BB680EF1C79BCE706 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		2FCD459848B578953ED4DD1B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A91C3E7B05D24F68A4E1C0B3 /* LLM */ = {isa = PBXFileReference; lastKnownFileType = folder; path = LLM; sourceTree = "<group>"; };
-		E8A1C4D72B6F4905A3C9E1D4 /* Audio */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Audio; sourceTree = "<group>"; };
+		404AE1C8D87B9498CCB25C96 /* MemoryEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryEntry.swift; sourceTree = "<group>"; };
+		454CC64BAFA8A30A178E5EA0 /* MemoryExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryExtractor.swift; sourceTree = "<group>"; };
 		55BD8F6E3E50B75C4A76AC5C /* VoicePipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoicePipeline.swift; sourceTree = "<group>"; };
 		5E53B5479E5395EA7890B335 /* Volocal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Volocal.entitlements; sourceTree = "<group>"; };
 		63C4761BFF59B998E24EDE71 /* SentenceBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SentenceBuffer.swift; sourceTree = "<group>"; };
@@ -48,15 +65,19 @@
 		84AAB3650E87AF43D4BB88D6 /* TTSManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSManager.swift; sourceTree = "<group>"; };
 		9302DF6902D5B0BF3DBB94CC /* ModelLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelLoadingView.swift; sourceTree = "<group>"; };
 		A24B70B1FC8CE2B5CA8BEAF0 /* LlamaContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LlamaContext.swift; sourceTree = "<group>"; };
+		B9673D2109409F44D9156E84 /* VolocalTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VolocalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD6CCFE3689A8360A4122A4E /* MemoryExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryExtractorTests.swift; sourceTree = "<group>"; };
 		C792F48B773B8AB7FB665186 /* SystemMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMetrics.swift; sourceTree = "<group>"; };
 		C7C45CAC47FAC2077DBF09D6 /* ConversationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationModel.swift; sourceTree = "<group>"; };
 		CA2740080E7653F6B3AA1C63 /* UnifiedModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedModelManager.swift; sourceTree = "<group>"; };
 		CD55CD53C6E932FD238993AA /* MetricsOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricsOverlay.swift; sourceTree = "<group>"; };
 		DFE622895A6CE2CE706ED4F1 /* Volocal.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Volocal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F00A9006F1E3E1FB283DCE59 /* VolocalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolocalApp.swift; sourceTree = "<group>"; };
+		F41E4AC151BD5FA246F645D1 /* MemoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryStoreTests.swift; sourceTree = "<group>"; };
 		F42124AFAD76D1721B0F69AA /* STTManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = STTManager.swift; sourceTree = "<group>"; };
 		F47F3DB48C0E4495EEF5445E /* SharedAudioEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedAudioEngine.swift; sourceTree = "<group>"; };
 		F5A949904EB0EA59094FD6C3 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		FEE0C45AABDAE96CE3A8EF60 /* MemoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +113,22 @@
 			path = Debug;
 			sourceTree = "<group>";
 		};
+		396D22277ED6D7F5740E4856 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		3A4E495C432ACEBB322FC7BE /* VolocalTests */ = {
+			isa = PBXGroup;
+			children = (
+				BD6CCFE3689A8360A4122A4E /* MemoryExtractorTests.swift */,
+				F41E4AC151BD5FA246F645D1 /* MemoryStoreTests.swift */,
+			);
+			path = VolocalTests;
+			sourceTree = "<group>";
+		};
 		44A62F45AE2820BA006736A6 /* STT */ = {
 			isa = PBXGroup;
 			children = (
@@ -113,7 +150,10 @@
 		5FCBF96685D02E8F557BB59C = {
 			isa = PBXGroup;
 			children = (
+				2401DF3145CAE4F90EAC2643 /* Audio */,
+				0CB5E8CCB252DFA3FB29EA8B /* LLM */,
 				E0C0F140D85FD98F4070DD2E /* Volocal */,
+				3A4E495C432ACEBB322FC7BE /* VolocalTests */,
 				72B210265CD5ECF02C57DCCF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -122,6 +162,7 @@
 			isa = PBXGroup;
 			children = (
 				DFE622895A6CE2CE706ED4F1 /* Volocal.app */,
+				B9673D2109409F44D9156E84 /* VolocalTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -143,13 +184,14 @@
 			path = TTS;
 			sourceTree = "<group>";
 		};
-		C2D8F5A14E6B4907B3A9D2E6 /* Resources */ = {
+		C93CFEA4681E61100CFB0C9E /* Memory */ = {
 			isa = PBXGroup;
 			children = (
-				E8A1C4D72B6F4905A3C9E1D4 /* Audio */,
-				A91C3E7B05D24F68A4E1C0B3 /* LLM */,
+				404AE1C8D87B9498CCB25C96 /* MemoryEntry.swift */,
+				454CC64BAFA8A30A178E5EA0 /* MemoryExtractor.swift */,
+				FEE0C45AABDAE96CE3A8EF60 /* MemoryStore.swift */,
 			);
-			path = Resources;
+			path = Memory;
 			sourceTree = "<group>";
 		};
 		E0C0F140D85FD98F4070DD2E /* Volocal */ = {
@@ -159,13 +201,14 @@
 				174A173A569CA4BF546109AC /* Info.plist */,
 				F5A949904EB0EA59094FD6C3 /* PrivacyInfo.xcprivacy */,
 				5E53B5479E5395EA7890B335 /* Volocal.entitlements */,
-				C2D8F5A14E6B4907B3A9D2E6 /* Resources */,
 				4AB318961DE2BFC1B733BAFD /* App */,
 				EA64CF9D2C8D5ED6A95026F0 /* Audio */,
 				2DA99BDC6A4A6C4056009B5D /* Debug */,
 				8A606C4CF7342A374C0E3652 /* LLM */,
+				C93CFEA4681E61100CFB0C9E /* Memory */,
 				0E2568D678EC3CD9F996A932 /* Models */,
 				F82DEB9392D289613455F0BB /* Pipeline */,
+				396D22277ED6D7F5740E4856 /* Resources */,
 				44A62F45AE2820BA006736A6 /* STT */,
 				C61468C778D1F601D02541B1 /* TTS */,
 			);
@@ -193,12 +236,30 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		23BE96F60263467045089EE6 /* VolocalTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6F97DA516B0AE1F8C28C06FE /* Build configuration list for PBXNativeTarget "VolocalTests" */;
+			buildPhases = (
+				51B62099F167A51CA8FB6CDC /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				94290D3DDA0183068ABEE990 /* PBXTargetDependency */,
+			);
+			name = VolocalTests;
+			packageProductDependencies = (
+			);
+			productName = VolocalTests;
+			productReference = B9673D2109409F44D9156E84 /* VolocalTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		4B0D3CFCE1420835E634B20E /* Volocal */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FFD2BFF46E63B923B976FB2B /* Build configuration list for PBXNativeTarget "Volocal" */;
 			buildPhases = (
-				B7E4A1C83D9F4A06E2C5B8D1 /* Fetch bundled LLM GGUF */,
-				A4C8E2B19D3F4A07B6E5C0D1 /* Fetch bundled speech models */,
+				529DBA24C585F06C3B404D3D /* Fetch bundled LLM GGUF */,
+				A5691AAD1B61E79E51BC6146 /* Fetch bundled speech models */,
 				C18B539337E49654FA5845F8 /* Sources */,
 				D59016C7AC77D75809C93889 /* Resources */,
 				8A56EB5B2E57B22D9FEEB5D9 /* Frameworks */,
@@ -225,6 +286,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					23BE96F60263467045089EE6 = {
+						DevelopmentTeam = CDMG5NRWRF;
+						ProvisioningStyle = Automatic;
+					};
 					4B0D3CFCE1420835E634B20E = {
 						DevelopmentTeam = CDMG5NRWRF;
 						ProvisioningStyle = Automatic;
@@ -232,6 +297,7 @@
 				};
 			};
 			buildConfigurationList = FCF1FE01F889D1C1087BC180 /* Build configuration list for PBXProject "Volocal" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -245,11 +311,11 @@
 				A90BE892303E2C7C9FA62830 /* XCRemoteSwiftPackageReference "llama.swift" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 72B210265CD5ECF02C57DCCF /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				4B0D3CFCE1420835E634B20E /* Volocal */,
+				23BE96F60263467045089EE6 /* VolocalTests */,
 			);
 		};
 /* End PBXProject section */
@@ -260,16 +326,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				F2832130B64B921A67A30BE9 /* Assets.xcassets in Resources */,
+				FA2172C1341701DFD04DAE79 /* Audio in Resources */,
+				CCE02A5D7AF789F28A72C4FE /* LLM in Resources */,
 				A680B8A61D166FB7C510DBD0 /* PrivacyInfo.xcprivacy in Resources */,
-				F0A6C3D85B1E4729C7D4E8A2 /* LLM in Resources */,
-				F1B2C3D4E5A64789B0C1D2E3 /* Audio in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		B7E4A1C83D9F4A06E2C5B8D1 /* Fetch bundled LLM GGUF */ = {
+		529DBA24C585F06C3B404D3D /* Fetch bundled LLM GGUF */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -288,7 +354,7 @@
 			shellPath = /bin/sh;
 			shellScript = "set -euo pipefail\n/bin/bash \"${SRCROOT}/scripts/fetch_llm_gguf.sh\"\n";
 		};
-		A4C8E2B19D3F4A07B6E5C0D1 /* Fetch bundled speech models */ = {
+		A5691AAD1B61E79E51BC6146 /* Fetch bundled speech models */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -310,6 +376,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		51B62099F167A51CA8FB6CDC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0830784740D62A732589640C /* MemoryExtractorTests.swift in Sources */,
+				2CACCE51E3B507E54CE0B2C1 /* MemoryStoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C18B539337E49654FA5845F8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -318,6 +393,9 @@
 				01354C469FA9D25F726E9E9B /* ConversationModel.swift in Sources */,
 				E3D279E7690E83F7E5B16D6C /* LLMManager.swift in Sources */,
 				57CDC8721D4682FA2D0ED0B1 /* LlamaContext.swift in Sources */,
+				C74534B3A65B4B1B38EF6DE0 /* MemoryEntry.swift in Sources */,
+				662510E635BFB8F036C0B95E /* MemoryExtractor.swift in Sources */,
+				4AC0DF1BEF5602702FCF4C68 /* MemoryStore.swift in Sources */,
 				2641CA1C31825ED3240FFBBF /* MetricsOverlay.swift in Sources */,
 				17BF9DA27B0DAE6195BCD874 /* ModelLoadingView.swift in Sources */,
 				A03EE7D67AD0A63FC7E16072 /* ModelRegistry.swift in Sources */,
@@ -335,6 +413,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		94290D3DDA0183068ABEE990 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4B0D3CFCE1420835E634B20E /* Volocal */;
+			targetProxy = FA6CC0EBCCD8C62270EDE22F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		14AE07956A3FE1A3E3510F76 /* Release */ = {
@@ -376,6 +462,25 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.pointbarre.volocal;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		3F2B9DF191C347F47CA0A2DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CDMG5NRWRF;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.pointbarre.volocal.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Volocal.app/Volocal";
 			};
 			name = Debug;
 		};
@@ -434,6 +539,25 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		A1542A5FD0CF1AE819F67FCA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = CDMG5NRWRF;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.pointbarre.volocal.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Volocal.app/Volocal";
 			};
 			name = Release;
 		};
@@ -505,6 +629,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		6F97DA516B0AE1F8C28C06FE /* Build configuration list for PBXNativeTarget "VolocalTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3F2B9DF191C347F47CA0A2DA /* Debug */,
+				A1542A5FD0CF1AE819F67FCA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		FCF1FE01F889D1C1087BC180 /* Build configuration list for PBXProject "Volocal" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
