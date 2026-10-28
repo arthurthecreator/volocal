@@ -2,12 +2,12 @@
 # The .gguf is gitignored (GitHub's 100 MB blob limit). Do not commit it.
 # Keep `filename` identical to ModelRegistry.llmFilename.
 #
-# Q4_K_M of the official post-trained Qwen/Qwen3.5-2B.
+# Q4_K_S (as upstream fikrikarim/volocal) of the official post-trained Qwen/Qwen3.5-2B.
 # Qwen does not publish a separate Qwen3.5-2B-Instruct repo; this checkpoint
 # is the instruct model (non-thinking by default). There is no official GGUF.
 # sha256 is the Hugging Face Git-LFS oid for bartowski's imatrix quant.
 
-filename=Qwen_Qwen3.5-2B-Q4_K_M.gguf
-url=https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF/resolve/main/Qwen_Qwen3.5-2B-Q4_K_M.gguf
-sha256=57a1085840f497d764a7fc5d346922dbde961efb54cc792ea81d694fd846a1d8
-bytes=1396198496
+filename=Qwen_Qwen3.5-2B-Q4_K_S.gguf
+url=https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF/resolve/main/Qwen_Qwen3.5-2B-Q4_K_S.gguf
+sha256=55b574899b75180d084238ffbf5d3d165c568a3d73e1edbd3c826682a986c8d4
+bytes=1327696992

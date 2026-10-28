@@ -46,13 +46,13 @@ Moving STT to [FluidAudio](https://github.com/FluidInference/FluidAudio) (CoreML
 | Component | Model                                                                                       | How you get it | Runtime           |
 | --------- | ------------------------------------------------------------------------------------------- | -------------- | ----------------- |
 | STT       | [Parakeet EOU 320](https://huggingface.co/FluidInference/parakeet-realtime-eou-120m-coreml) | Bundled at build time, 224,238,533 bytes | CoreML (ANE)      |
-| LLM       | [Qwen3.5-2B Instruct Q4_K_M](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF)         | Bundled at build time, 1,396,198,496 bytes | llama.cpp (Metal), ctx 2048, KV F16 |
+| LLM       | [Qwen3.5-2B Instruct Q4_K_S](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF)         | Bundled at build time, 1,327,696,992 bytes | llama.cpp (Metal), ctx 2048, KV F16 |
 | TTS       | [PocketTTS](https://huggingface.co/FluidInference/pocket-tts-coreml)                        | Bundled at build time, 732,524,727 bytes | CoreML (CPU+GPU)  |
 
 Why these specifically:
 
 - **Parakeet EOU** over Moonshine/Whisper — lower WER (4.87% vs 6.65% Moonshine Medium), half the parameters, and end-of-utterance detection is built into the model so you don't need a separate VAD.
-- **Qwen3.5-2B** over 0.8B — MMLU-Pro nearly doubles (29.7 → 55.3). Slower (~32 vs ~70 tok/s) but the quality difference is obvious in conversation. The bundled quant is Q4_K_M (1,396,198,496 bytes) of the official post-trained model, which is the instruct checkpoint. Qwen does not ship a separate `-Instruct` repo. Context is fixed at 2048 with an F16 K/V cache (latency A/B step 1).
+- **Qwen3.5-2B** over 0.8B — MMLU-Pro nearly doubles (29.7 → 55.3). Slower (~32 vs ~70 tok/s) but the quality difference is obvious in conversation. The bundled quant is Q4_K_S (1,327,696,992 bytes, same quant as upstream; latency A/B step 2) of the official post-trained model, which is the instruct checkpoint. Qwen does not ship a separate `-Instruct` repo. Context is fixed at 2048 with an F16 K/V cache (latency A/B step 1).
 - **PocketTTS** — best quality we found at this size (100M params). ~80ms to first audio, supports voice cloning from a 5-second clip.
 
 ### Audio
@@ -87,10 +87,10 @@ Build and run on a device. All three models are already in the app. There is no 
 
 | | |
 | --- | --- |
-| File | `Qwen_Qwen3.5-2B-Q4_K_M.gguf` |
-| Source | [bartowski/Qwen_Qwen3.5-2B-GGUF](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF) (imatrix Q4_K_M of the post-trained [Qwen/Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B) instruct model) |
-| Size | 1,396,198,496 bytes (about 1.30 GiB) |
-| SHA-256 | `57a1085840f497d764a7fc5d346922dbde961efb54cc792ea81d694fd846a1d8` |
+| File | `Qwen_Qwen3.5-2B-Q4_K_S.gguf` |
+| Source | [bartowski/Qwen_Qwen3.5-2B-GGUF](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF) (imatrix Q4_K_S of the post-trained [Qwen/Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B) instruct model) |
+| Size | 1,327,696,992 bytes (about 1.24 GiB) |
+| SHA-256 | `55b574899b75180d084238ffbf5d3d165c568a3d73e1edbd3c826682a986c8d4` |
 | Lockfile | `scripts/llm-gguf.lock` (must match `ModelRegistry.llmFilename`) |
 | Runtime | context **2048**, K and V cache **F16**, Flash Attention on (kept from the q8_0 setup; not required with F16) |
 
@@ -114,7 +114,7 @@ Every file's URL, byte size, and SHA-256 is in the lockfile. The fetch script ch
 
 The build machine needs to reach `huggingface.co` the first time, and again whenever a lockfile changes. A checksum or size mismatch fails the build instead of bundling a partial file.
 
-Apple's uncompressed app limit is 4 GB (4,294,967,296 bytes). The three model payloads together are 2,352,961,756 bytes (2.191 GiB): the Q4_K_M GGUF at 1,396,198,496 bytes plus 956,763,260 bytes of speech models. That leaves 1,942,005,540 bytes (1.809 GiB) for the app binary, frameworks, and assets, which were not measured here (this environment has no Xcode). The total stays under 4 GB. An app this large will usually install over Wi-Fi.
+Apple's uncompressed app limit is 4 GB (4,294,967,296 bytes). The three model payloads together are 2,284,460,252 bytes (2.128 GiB): the Q4_K_S GGUF at 1,327,696,992 bytes plus 956,763,260 bytes of speech models. That leaves 2,010,507,044 bytes (1.872 GiB) for the app binary, frameworks, and assets, which were not measured here (this environment has no Xcode). The total stays under 4 GB. An app this large will usually install over Wi-Fi.
 
 ## Architecture
 
