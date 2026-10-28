@@ -46,20 +46,20 @@ Moving STT to [FluidAudio](https://github.com/FluidInference/FluidAudio) (CoreML
 | Component | Model                                                                                       | How you get it | Runtime           |
 | --------- | ------------------------------------------------------------------------------------------- | -------------- | ----------------- |
 | STT       | [Parakeet EOU 320](https://huggingface.co/FluidInference/parakeet-realtime-eou-120m-coreml) | Bundled at build time, 224,238,533 bytes | CoreML (ANE)      |
-| LLM       | [Qwen3.5-2B Instruct Q4_K_M](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF)         | Bundled at build time, 1,396,198,496 bytes | llama.cpp (Metal), ctx 8192, KV q8_0 |
+| LLM       | [Qwen3.5-2B Instruct Q4_K_M](https://huggingface.co/bartowski/Qwen_Qwen3.5-2B-GGUF)         | Bundled at build time, 1,396,198,496 bytes | llama.cpp (Metal), ctx 2048, KV F16 |
 | TTS       | [PocketTTS](https://huggingface.co/FluidInference/pocket-tts-coreml)                        | Bundled at build time, 732,524,727 bytes | CoreML (CPU+GPU)  |
 
 Why these specifically:
 
 - **Parakeet EOU** over Moonshine/Whisper — lower WER (4.87% vs 6.65% Moonshine Medium), half the parameters, and end-of-utterance detection is built into the model so you don't need a separate VAD.
-- **Qwen3.5-2B** over 0.8B — MMLU-Pro nearly doubles (29.7 → 55.3). Slower (~32 vs ~70 tok/s) but the quality difference is obvious in conversation. The bundled quant is Q4_K_M (1,396,198,496 bytes) of the official post-trained model, which is the instruct checkpoint. Qwen does not ship a separate `-Instruct` repo. Context is fixed at 8192 with K and V quantized to q8_0.
+- **Qwen3.5-2B** over 0.8B — MMLU-Pro nearly doubles (29.7 → 55.3). Slower (~32 vs ~70 tok/s) but the quality difference is obvious in conversation. The bundled quant is Q4_K_M (1,396,198,496 bytes) of the official post-trained model, which is the instruct checkpoint. Qwen does not ship a separate `-Instruct` repo. Context is fixed at 2048 with an F16 K/V cache (latency A/B step 1).
 - **PocketTTS** — best quality we found at this size (100M params). ~80ms to first audio, supports voice cloning from a 5-second clip.
 
 ### Audio
 
 One shared `AVAudioEngine` for both STT input and TTS output, with Voice Processing AEC enabled on both nodes. This is what lets barge-in work — the mic stays open during playback and the hardware cancels the echo, so there's no need to mute the mic while speaking.
 
-Runtime memory was about 1.2 GB total at context 2048 (iPhone 15 budget is ~3 GB). Context is now 8192 with a q8_0 K/V cache. For this model that cache is on the order of a few tens of MB and has not been remeasured on a device.
+Runtime memory was about 1.2 GB total at context 2048 (iPhone 15 budget is ~3 GB). Context is back to 2048 with an F16 K/V cache (latency A/B step 1).
 
 ## Getting started
 
@@ -92,7 +92,7 @@ Build and run on a device. All three models are already in the app. There is no 
 | Size | 1,396,198,496 bytes (about 1.30 GiB) |
 | SHA-256 | `57a1085840f497d764a7fc5d346922dbde961efb54cc792ea81d694fd846a1d8` |
 | Lockfile | `scripts/llm-gguf.lock` (must match `ModelRegistry.llmFilename`) |
-| Runtime | context **8192**, K and V cache **q8_0**, Flash Attention on (required for a quantized V cache) |
+| Runtime | context **2048**, K and V cache **F16**, Flash Attention on (kept from the q8_0 setup; not required with F16) |
 
 The prompt ends with the official non-thinking prefix from `Qwen/Qwen3.5-2B`'s chat template (an assistant header plus an empty think block). Generation stops on the GGUF eos token `<|im_end|>` (id 248046) through `llama_vocab_is_eog`.
 

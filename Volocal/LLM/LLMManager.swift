@@ -38,11 +38,11 @@ final class LLMManager: ObservableObject {
     }
 
     func loadModel(path: String) async throws {
-        // Context 8192 and q8_0 K/V are explicit (not llama.cpp defaults).
+        // Context 2048 and F16 K/V (latency A/B step 1, matches upstream).
         llamaContext = try LlamaContext.create(
             path: path,
-            contextSize: 8192,
-            kvCacheType: GGML_TYPE_Q8_0
+            contextSize: 2048,
+            kvCacheType: GGML_TYPE_F16
         )
     }
 
