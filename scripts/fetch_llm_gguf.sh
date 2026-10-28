@@ -72,6 +72,16 @@ fi
 mkdir -p "${DEST_DIR}"
 dest="${DEST_DIR}/${filename}"
 
+# Resources/LLM is a folder reference: any other GGUF left here (e.g. a
+# previous quant) would be copied into the app too. Remove stale ones.
+for stale in "${DEST_DIR}"/*.gguf; do
+  [[ -e "${stale}" ]] || continue
+  if [[ "$(basename "${stale}")" != "${filename}" ]]; then
+    echo "Removing stale bundled LLM: $(basename "${stale}")"
+    rm -f "${stale}"
+  fi
+done
+
 file_size() {
   if stat -c%s "$1" >/dev/null 2>&1; then
     stat -c%s "$1"

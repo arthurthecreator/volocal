@@ -30,7 +30,7 @@ enum ModelRegistry {
 
         var detail: String {
             switch self {
-            case .llm: return "Qwen3.5-2B Instruct Q4_K_M"
+            case .llm: return "Qwen3.5-2B Instruct Q4_K_S"
             case .stt: return "Parakeet EOU 320"
             case .tts: return "PocketTTS"
             }
@@ -46,7 +46,7 @@ enum ModelRegistry {
     // that file into Volocal/Resources/LLM and Xcode copies the folder into
     // the app bundle. There is no runtime Hugging Face download.
 
-    static let llmFilename = "Qwen_Qwen3.5-2B-Q4_K_M.gguf"
+    static let llmFilename = "Qwen_Qwen3.5-2B-Q4_K_S.gguf"
 
     /// Subdirectory inside the app bundle (folder reference Resources/LLM).
     static let llmBundleSubdirectory = "LLM"
