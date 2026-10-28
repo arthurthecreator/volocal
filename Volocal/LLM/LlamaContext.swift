@@ -61,15 +61,16 @@ actor LlamaContext {
         }
     }
 
-    /// Text context length. Explicitly 8192, not the GGUF default (262144).
-    static let contextSize: UInt32 = 8192
+    /// Text context length. Explicitly 2048 (as upstream), not the GGUF default (262144).
+    /// Latency A/B step 1: back from 8192 to 2048.
+    static let contextSize: UInt32 = 2048
 
-    /// KV cache type for both K and V. q8_0 is ggml type 8.
-    /// llama.cpp rejects a quantized V cache unless Flash Attention is enabled.
-    static let kvCacheType: ggml_type = GGML_TYPE_Q8_0
+    /// KV cache type for both K and V. F16 (llama.cpp default, as upstream).
+    /// Latency A/B step 1: back from q8_0 to F16.
+    static let kvCacheType: ggml_type = GGML_TYPE_F16
 
     /// Create a new LlamaContext by loading a GGUF model file.
-    /// `contextSize` defaults to 8192 and both KV caches are q8_0.
+    /// `contextSize` defaults to 2048 and both KV caches are F16.
     static func create(
         path: String,
         contextSize: UInt32 = LlamaContext.contextSize,
@@ -93,7 +94,8 @@ actor LlamaContext {
         ctxParams.n_batch = 512
         ctxParams.type_k = kvCacheType
         ctxParams.type_v = kvCacheType
-        // Required for q8_0 V. AUTO would turn it on, but keep it explicit.
+        // Kept on from the q8_0 setup (no longer required with an F16 V cache).
+        // Left unchanged so step 1 isolates KV type + context size.
         ctxParams.flash_attn_type = LLAMA_FLASH_ATTN_TYPE_ENABLED
         let threadCount = Int32(max(1, min(8, ProcessInfo.processInfo.processorCount - 2)))
         ctxParams.n_threads = threadCount
